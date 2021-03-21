@@ -6,13 +6,8 @@ package(
 # =========================================================
 
 cc_library(
-    name = "mmd-vector-lib",
-    srcs = glob(
-        [
-            "src/*.cc",
-        ],
-    ),
-    hdrs = glob(["src/include/*.h"]),
+    name = "mmd-vector",
+    hdrs = glob(["src/*.h"]),
     visibility = ["//visibility:public"],
     deps = select({
         "//conditions:default": [
@@ -23,13 +18,4 @@ cc_library(
             "@boost//:iostreams",
         ],
     }),
-)
-
-# Application
-# =========================================================
-cc_binary(
-    name = "mmd-vector",
-    srcs = ["src/main.cc"],
-    visibility = ["//visibility:public"],
-    deps = [":mmd-vector-lib"],
 )

@@ -23,8 +23,6 @@ namespace mmd
         //TODO: Add a default constructor with a 1MB file or something.
         MmdVector(const std::size_t size);
         ~MmdVector();
-        void mmd_test();
-        void std_test();
         const MappedVector<T>* get_mapped_vector() const;
 
     private:
@@ -60,32 +58,6 @@ namespace mmd
         path += "/";
         path += "tmp.out"; //TODO: Make this timestamp or something unique.
         return path;
-    }
-
-    template <typename T>
-    void MmdVector<T>::mmd_test()
-    {
-        try
-        {
-            std::cout << "Size before: " << this->mmd_vector->size() << std::endl;
-            for (int i = 0; i < 1000000; i++)
-                this->mmd_vector->push_back(i);
-            std::cout << "Size after: " << this->mmd_vector->size() << std::endl;
-        }
-        catch (const boost::interprocess::bad_alloc &)
-        {
-            //mapped file is full
-        }
-    }
-
-    template <typename T>
-    void MmdVector<T>::std_test()
-    {
-        std::vector<double> numbers(0);
-        std::cout << "Size before: " << numbers.size() << std::endl;
-        for (int i = 0; i < 1000000; i++)
-            numbers.push_back(i);
-        std::cout << "Size after: " << numbers.size() << std::endl;
     }
 
     template <typename T>

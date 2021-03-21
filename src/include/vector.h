@@ -1,5 +1,5 @@
-#ifndef MMD_INCLUDE_VECTOR_H
-#define MMD_INCLUDE_VECTOR_H
+#ifndef MMD_INCLUDE_MMDVECTOR_H
+#define MMD_INCLUDE_MMDVECTOR_H
 
 #include <cstddef>
 #include <string>
@@ -106,4 +106,4 @@ namespace mmd
     }
 } // namespace mmd
 
-#endif // MMD_INCLUDE_VECTOR_H
+#endif // MMD_INCLUDE_MMDVECTOR_H

@@ -16,19 +16,11 @@ namespace mmd
 
     template <typename T>
     using MappedVector = boost::interprocess::vector<T, boost::interprocess::allocator<T, boost::interprocess::managed_mapped_file::segment_manager>>;
-    /**
-     * I think I should have a non-size specific impl and, like a vector, do the growing when I need to.
-     * Start with a 1mb file, and double it each time I cannot alloc.
-     */
     template <typename T>
     class MmdVector
     {
-        //using MappedVector = boost::interprocess::vector<T, boost::interprocess::allocator<T, boost::interprocess::managed_mapped_file::segment_manager>>;
-
     public:
-        /**
-         * 
-         */
+        //TODO: Add a default constructor with a 1MB file or something.
         MmdVector(const std::size_t size);
         ~MmdVector();
         void mmd_test();
@@ -36,9 +28,6 @@ namespace mmd
         const MappedVector<T>* get_mapped_vector() const;
 
     private:
-        /**
-         * 
-         */
         std::size_t file_size;
         std::string file_path;
         boost::interprocess::managed_mapped_file::handle_t vector_handle;

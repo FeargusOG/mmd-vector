@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "include/vector.h"
+#include "include/mmd-vector.h"
 
 int main(int argc, char *argv[])
 {

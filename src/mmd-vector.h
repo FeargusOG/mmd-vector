@@ -75,22 +75,6 @@ namespace mmd
             std::cout<<"Ran out of space! Growing file..."<<std::endl;
             this->double_filesize();
         }
-        catch (const std::runtime_error &re)
-        {
-            // speciffic handling for runtime_error
-            std::cout << "Runtime error: " << re.what() << std::endl;
-        }
-        catch (const std::exception &ex)
-        {
-            // speciffic handling for all exceptions extending std::exception, except
-            // std::runtime_error which is handled explicitly
-            std::cout << "Error occurred: " << ex.what() << std::endl;
-        }
-        catch (...)
-        {
-            // catch any other errors (that we have no information about)
-            std::cout << "Unknown failure occurred. Possible memory corruption" << std::endl;
-        }
     }
 
     template <typename T>

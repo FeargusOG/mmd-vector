@@ -17,6 +17,13 @@ http_archive(
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 bazel_skylib_workspace()
 
+# GoogleTest/GoogleMock framework.
+git_repository(
+    name = "com_google_googletest",
+    remote = "https://github.com/google/googletest.git",
+    tag = "release-1.10.0",
+)
+
 git_repository(
     name = "com_github_nelhage_rules_boost",
     commit = "c13a880269cc044c4b5e90046625339836771d77",

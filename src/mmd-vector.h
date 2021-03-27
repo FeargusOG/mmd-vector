@@ -1,5 +1,5 @@
-#ifndef MMD_INCLUDE_MMDVECTOR_H
-#define MMD_INCLUDE_MMDVECTOR_H
+#ifndef MMD_INCLUDE_MMD_VECTOR_H
+#define MMD_INCLUDE_MMD_VECTOR_H
 
 #include <cstddef>
 #include <string>
@@ -9,6 +9,9 @@
 #include <boost/interprocess/managed_mapped_file.hpp>
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/interprocess/allocators/allocator.hpp>
+#include <boost/uuid/uuid.hpp>            // uuid class
+#include <boost/uuid/uuid_generators.hpp> // generators
+#include <boost/uuid/uuid_io.hpp>         // streaming operators etc.
 
 namespace mmd
 {
@@ -16,6 +19,7 @@ namespace mmd
 
     template <typename T>
     using MappedVector = boost::interprocess::vector<T, boost::interprocess::allocator<T, boost::interprocess::managed_mapped_file::segment_manager>>;
+
     template <typename T>
     class MmdVector
     {
@@ -54,9 +58,10 @@ namespace mmd
     template <typename T>
     std::string MmdVector<T>::generate_filepath()
     {
+        boost::uuids::uuid uuid = boost::uuids::random_generator()();
         std::string path(boost::interprocess::ipcdetail::get_temporary_path());
         path += "/";
-        path += "tmp.out"; //TODO: Make this timestamp or something unique.
+        path += boost::uuids::to_string(uuid); //TODO: Make this timestamp or something unique.
         return path;
     }
 
@@ -67,4 +72,4 @@ namespace mmd
     }
 } // namespace mmd
 
-#endif // MMD_INCLUDE_MMDVECTOR_H
+#endif // MMD_INCLUDE_MMD_VECTOR_H

@@ -7,6 +7,9 @@ build-debug:
 build-c++17:
 	bazel build --cxxopt='-std=c++17' :mmd-vector -c opt
 
+test:
+	bazel test :mmd-vector-test
+
 run-mmd:
 	./bazel-bin/mmd-vector m
 

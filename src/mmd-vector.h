@@ -74,6 +74,7 @@ namespace mmd
         {
             std::cout<<"Ran out of space! Growing file..."<<std::endl;
             this->double_filesize();
+            this->mmd_vector->push_back(val);
         }
     }
 

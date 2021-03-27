@@ -15,7 +15,7 @@
 
 namespace mmd
 {
-    #define MB 1000000
+#define k1MB 1000000
 
     template <typename T>
     using MappedVector = boost::interprocess::vector<T, boost::interprocess::allocator<T, boost::interprocess::managed_mapped_file::segment_manager>>;
@@ -24,29 +24,85 @@ namespace mmd
     class MmdVector
     {
     public:
-        //TODO: Add a default constructor with a 1MB file or something.
+        MmdVector() : MmdVector(k1MB) {}
         MmdVector(const std::size_t size);
         ~MmdVector();
-        const MappedVector<T>* get_mapped_vector() const;
+        const unsigned long get_file_size() const;
+        const std::string get_file_path() const;
+        const MappedVector<T> *get_mapped_vector() const;
+        void push_back(const T &val);
 
     private:
-        std::size_t file_size;
+        unsigned long file_size;
         std::string file_path;
         boost::interprocess::managed_mapped_file::handle_t vector_handle;
         boost::interprocess::managed_mapped_file mfile_memory;
         MappedVector<T> *mmd_vector;
 
         std::string generate_filepath();
+        void double_filesize();
     };
 
     template <typename T>
     MmdVector<T>::MmdVector(const std::size_t size)
     {
-        this->file_size = size * MB;
         this->file_path = this->generate_filepath();
         boost::interprocess::file_mapping::remove(this->file_path.c_str());
-        this->mfile_memory = boost::interprocess::managed_mapped_file(boost::interprocess::create_only, this->file_path.c_str(), this->file_size);
-        this->mmd_vector = this->mfile_memory.construct<MappedVector<T>>("MappedVector<T>")(this->mfile_memory.get_segment_manager());
+        this->mfile_memory = boost::interprocess::managed_mapped_file(boost::interprocess::create_only, this->file_path.c_str(), size);
+        this->file_size = this->mfile_memory.get_size();
+        this->mmd_vector = this->mfile_memory.construct<MappedVector<T>>("MappedVector<T>")(mfile_memory.get_segment_manager());
+        this->vector_handle = this->mfile_memory.get_handle_from_address(this->mmd_vector);
+    }
+
+    template <typename T>
+    void MmdVector<T>::double_filesize()
+    {
+        boost::interprocess::managed_mapped_file::grow(this->file_path.c_str(), this->file_size);
+        this->mfile_memory = boost::interprocess::managed_mapped_file(boost::interprocess::open_only, this->file_path.c_str());
+        this->mmd_vector = static_cast<MappedVector<T> *>(this->mfile_memory.get_address_from_handle(this->vector_handle));
+        this->file_size = this->mfile_memory.get_size();
+    }
+
+    template <typename T>
+    void MmdVector<T>::push_back(const T &val)
+    {
+        try
+        {
+            this->mmd_vector->push_back(val);
+        }
+        catch (const boost::interprocess::bad_alloc &)
+        {
+            std::cout<<"Ran out of space! Growing file..."<<std::endl;
+            this->double_filesize();
+        }
+        catch (const std::runtime_error &re)
+        {
+            // speciffic handling for runtime_error
+            std::cout << "Runtime error: " << re.what() << std::endl;
+        }
+        catch (const std::exception &ex)
+        {
+            // speciffic handling for all exceptions extending std::exception, except
+            // std::runtime_error which is handled explicitly
+            std::cout << "Error occurred: " << ex.what() << std::endl;
+        }
+        catch (...)
+        {
+            // catch any other errors (that we have no information about)
+            std::cout << "Unknown failure occurred. Possible memory corruption" << std::endl;
+        }
+    }
+
+    template <typename T>
+    const unsigned long MmdVector<T>::get_file_size() const
+    {
+        return this->file_size;
+    }
+
+    template <typename T>
+    const std::string MmdVector<T>::get_file_path() const
+    {
+        return this->file_path;
     }
 
     template <typename T>
@@ -66,7 +122,7 @@ namespace mmd
     }
 
     template <typename T>
-    const MappedVector<T>* MmdVector<T>::get_mapped_vector() const 
+    const MappedVector<T> *MmdVector<T>::get_mapped_vector() const
     {
         return this->mmd_vector;
     }

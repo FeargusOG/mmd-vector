@@ -24,7 +24,7 @@ namespace mmd
     class MmdVector
     {
     public:
-        MmdVector() : MmdVector(k1MB) {}
+        MmdVector() : MmdVector(1) {}
         MmdVector(const std::size_t size);
         ~MmdVector();
         const unsigned long get_file_size() const;
@@ -33,6 +33,7 @@ namespace mmd
         void push_back(const T &val);
 
     private:
+        const std::size_t min_file_size = k1MB * 10;
         unsigned long file_size;
         std::string file_path;
         boost::interprocess::managed_mapped_file::handle_t vector_handle;
@@ -46,17 +47,23 @@ namespace mmd
     template <typename T>
     MmdVector<T>::MmdVector(const std::size_t size)
     {
+        std::size_t bytes_needed = size * sizeof(T) * 1.5;
+        std::cout<<"bytes requested: "<<bytes_needed<<std::endl;
+        bytes_needed = (bytes_needed < min_file_size) ? min_file_size : bytes_needed;
+        std::cout<<"bytes actually requested: "<<bytes_needed<<std::endl;
         this->file_path = this->generate_filepath();
         boost::interprocess::file_mapping::remove(this->file_path.c_str());
-        this->mfile_memory = boost::interprocess::managed_mapped_file(boost::interprocess::create_only, this->file_path.c_str(), size);
+        this->mfile_memory = boost::interprocess::managed_mapped_file(boost::interprocess::create_only, this->file_path.c_str(), bytes_needed);
         this->file_size = this->mfile_memory.get_size();
         this->mmd_vector = this->mfile_memory.construct<MappedVector<T>>("MappedVector<T>")(mfile_memory.get_segment_manager());
         this->vector_handle = this->mfile_memory.get_handle_from_address(this->mmd_vector);
+        std::cout<<"bytes used: "<<this->mfile_memory.get_size()<<std::endl;
     }
 
     template <typename T>
     void MmdVector<T>::double_filesize()
     {
+        std::cout<<"Growing File!"<<std::endl;
         boost::interprocess::managed_mapped_file::grow(this->file_path.c_str(), this->file_size);
         this->mfile_memory = boost::interprocess::managed_mapped_file(boost::interprocess::open_only, this->file_path.c_str());
         this->mmd_vector = static_cast<MappedVector<T> *>(this->mfile_memory.get_address_from_handle(this->vector_handle));

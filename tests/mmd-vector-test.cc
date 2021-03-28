@@ -14,30 +14,22 @@ namespace mmd
         TEST(MmdVector, constructor_default)
         {
             MmdVector<double> vector;
-            EXPECT_EQ(k1Mb, vector.get_file_size());
+            EXPECT_GT(vector.get_file_size(),0);
         }
 
         TEST(MmdVector, constructor_size)
         {
-            MmdVector<double> vector{k2Mb};
-            EXPECT_EQ(k2Mb, vector.get_file_size());
+            MmdVector<double> vector{10};
+            EXPECT_GT(vector.get_file_size(), 10 * sizeof(double));
         }
 
-        TEST(MmdVector, push_back)
-        {
-            MmdVector<double> vector{k1Mb};
-            vector.push_back(1.0);
-            EXPECT_EQ(k1Mb, vector.get_file_size());
-        }
-
-        // Create a vector of size 1Mb, then fill just beyond that space. 
-        // Expect vector to now be 2Mb.
         TEST(MmdVector, push_back_grow)
         {
-            MmdVector<double> vector{k1Mb};
-            for (double i = 1.0; i <= k1Mb / sizeof(double); i++)
+            MmdVector<double> vector{10};
+            unsigned long orig_size = vector.get_file_size();
+            for (double i = 1.0; i <= 2000000; i++)
                 vector.push_back(i);
-            EXPECT_EQ(k2Mb, vector.get_file_size());
+            EXPECT_GT(vector.get_file_size(),orig_size);
         }
 
         

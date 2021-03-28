@@ -24,6 +24,7 @@ namespace mmd
     class MmdVector
     {
     public:
+        // NEED A COPY CONSTRUCTOR!
         MmdVector() : MmdVector(1) {}
         MmdVector(const std::size_t size);
         ~MmdVector();

@@ -66,15 +66,26 @@ namespace mmd
     template <typename T>
     void MmdVector<T>::push_back(const T &val)
     {
-        try
+        bool try_again = true;
+        while (true)
         {
-            this->mmd_vector->push_back(val);
-        }
-        catch (const boost::interprocess::bad_alloc &)
-        {
-            std::cout<<"Ran out of space! Growing file..."<<std::endl;
-            this->double_filesize();
-            this->mmd_vector->push_back(val);
+            try
+            {
+                this->mmd_vector->push_back(val);
+                break;
+            }
+            catch (const boost::interprocess::bad_alloc e)
+            {
+                if (try_again)
+                {
+                    try_again = false;
+                    this->double_filesize(); 
+                }
+                else
+                {
+                    throw e;
+                }
+            }
         }
     }
 

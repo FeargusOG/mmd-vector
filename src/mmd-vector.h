@@ -25,9 +25,10 @@ namespace mmd
     class MmdVector
     {
     public:
-        MmdVector() : MmdVector(kDefaultSizeMb) {}
-        MmdVector(const std::size_t size);
-        MmdVector(const MmdVector& other);
+        MmdVector() : MmdVector(kDefaultSizeMb) {}  // ctor default
+        MmdVector(const MmdVector& other);          // ctor copy
+        MmdVector(MmdVector&& other);               // ctor move
+        MmdVector(const std::size_t size);          // ctor custom size
         ~MmdVector();
         void swap(MmdVector& other);
         const unsigned long get_file_size() const;
@@ -54,7 +55,6 @@ namespace mmd
         this->init(size);
     }
 
-
     template <typename T>
     MmdVector<T>::MmdVector(const MmdVector& other)
     {
@@ -63,6 +63,12 @@ namespace mmd
         {
             this->mmd_vector->push_back(other.get_mapped_vector()->at(i));
         }
+    }
+
+    template <typename T>
+    MmdVector<T>::MmdVector(MmdVector&& other)
+    {
+        this->swap(other);
     }
 
     template <typename T>

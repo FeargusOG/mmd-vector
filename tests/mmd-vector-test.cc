@@ -11,21 +11,21 @@ namespace mmd
         const std::size_t k2Mb = 2000000;
         const std::size_t k4Mb = 4000000;
 
-        TEST(MmdVector, constructor_default)
+        TEST(MmdVector, ctor_default)
         {
             MmdVector<double> vector;
             EXPECT_EQ(vector.get_mapped_vector()->size(), 0);
             EXPECT_GT(vector.get_file_size(),0);
         }
 
-        TEST(MmdVector, constructor_size)
+        TEST(MmdVector, ctor_size)
         {
             MmdVector<double> vector{10};
             EXPECT_EQ(vector.get_mapped_vector()->size(), 0);
             EXPECT_GT(vector.get_file_size(), 10 * sizeof(double));
         }
 
-        TEST(MmdVector, constructor_copy)
+        TEST(MmdVector, ctor_copy)
         {
             const double test_val = 2.0;
             MmdVector<double> orig_vector{10};
@@ -37,6 +37,21 @@ namespace mmd
             MmdVector<double> copy_vector{orig_vector};
             EXPECT_EQ(copy_vector.get_mapped_vector()->size(), 1);
             EXPECT_DOUBLE_EQ(copy_vector.get_mapped_vector()->at(0), test_val);
+        }
+
+        TEST(MmdVector, ctor_move)
+        {
+            const double test_val = 2.0;
+            MmdVector<double> orig_vector{10};
+            EXPECT_EQ(orig_vector.get_mapped_vector()->size(), 0);
+            orig_vector.push_back(test_val);
+            EXPECT_EQ(orig_vector.get_mapped_vector()->size(), 1);
+            EXPECT_DOUBLE_EQ(orig_vector.get_mapped_vector()->at(0), test_val);
+
+            MmdVector<double> move_vector{std::move(orig_vector)};
+            EXPECT_EQ(orig_vector.get_mapped_vector()->size(), 0);
+            EXPECT_EQ(move_vector.get_mapped_vector()->size(), 1);
+            EXPECT_DOUBLE_EQ(move_vector.get_mapped_vector()->at(0), test_val);
         }
 
         TEST(MmdVector, swap)

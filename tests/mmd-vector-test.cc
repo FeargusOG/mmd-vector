@@ -127,11 +127,20 @@ namespace mmd
             EXPECT_DOUBLE_EQ(move_vector.get_mapped_vector()->at(0), test_val);
         }
 
-        TEST(MmdVector, push_back_grow)
+        TEST(MmdVector, push_back_grow_double)
         {
             MmdVector<double> vector{10};
             unsigned long orig_size = vector.get_file_size();
             for (double i = 1.0; i <= 2000000; i++)
+                vector.push_back(i);
+            EXPECT_GT(vector.get_file_size(),orig_size);
+        }
+
+        TEST(MmdVector, push_back_grow_int)
+        {
+            MmdVector<int> vector{10};
+            unsigned long orig_size = vector.get_file_size();
+            for (double i = 1; i <= 2000000; i++)
                 vector.push_back(i);
             EXPECT_GT(vector.get_file_size(),orig_size);
         }

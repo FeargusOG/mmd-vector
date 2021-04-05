@@ -29,7 +29,7 @@ namespace mmd
         MmdVector(const MmdVector& other);          // ctor copy
         MmdVector(MmdVector&& other) noexcept;      // ctor move
         MmdVector(const std::size_t size);          // ctor custom size
-        ~MmdVector();
+        ~MmdVector();                               // dtor
         MmdVector<T>& operator=(const MmdVector& other);        // optor copy
         MmdVector<T>& operator=(MmdVector&& other) noexcept;    // optor move
         const unsigned long get_file_size() const;

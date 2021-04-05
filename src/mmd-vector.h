@@ -16,6 +16,7 @@
 namespace mmd
 {
 #define k1MB 1000000
+#define kDefaultSizeMb 1
 
     template <typename T>
     using MappedVector = boost::interprocess::vector<T, boost::interprocess::allocator<T, boost::interprocess::managed_mapped_file::segment_manager>>;
@@ -24,17 +25,19 @@ namespace mmd
     class MmdVector
     {
     public:
-        // NEED A COPY CONSTRUCTOR!
-        MmdVector() : MmdVector(1) {}
+        MmdVector() : MmdVector(kDefaultSizeMb) {}
         MmdVector(const std::size_t size);
+        MmdVector(const MmdVector& other);
         ~MmdVector();
+        void swap(MmdVector& other);
         const unsigned long get_file_size() const;
         const std::string get_file_path() const;
         const MappedVector<T> *get_mapped_vector() const;
         void push_back(const T &val);
 
     private:
-        const std::size_t min_file_size = k1MB * 10;
+        void init(const std::size_t size);
+        const std::size_t min_file_size = k1MB * 1;
         unsigned long file_size;
         std::string file_path;
         boost::interprocess::managed_mapped_file::handle_t vector_handle;
@@ -48,23 +51,61 @@ namespace mmd
     template <typename T>
     MmdVector<T>::MmdVector(const std::size_t size)
     {
+        this->init(size);
+    }
+
+
+    template <typename T>
+    MmdVector<T>::MmdVector(const MmdVector& other)
+    {
+        this->init(other.file_size);
+        for (int i=0; i < other.get_mapped_vector()->size(); i++)
+        {
+            this->mmd_vector->push_back(other.get_mapped_vector()->at(i));
+        }
+    }
+
+    template <typename T>
+    void MmdVector<T>::init(const std::size_t size)
+    {
         std::size_t bytes_needed = size * sizeof(T) * 1.5;
-        std::cout<<"bytes requested: "<<bytes_needed<<std::endl;
+        //std::cout<<"bytes requested: "<<bytes_needed<<std::endl;
         bytes_needed = (bytes_needed < min_file_size) ? min_file_size : bytes_needed;
-        std::cout<<"bytes actually requested: "<<bytes_needed<<std::endl;
+        //std::cout<<"bytes actually requested: "<<bytes_needed<<std::endl;
         this->file_path = this->generate_filepath();
         boost::interprocess::file_mapping::remove(this->file_path.c_str());
         this->mfile_memory = boost::interprocess::managed_mapped_file(boost::interprocess::create_only, this->file_path.c_str(), bytes_needed);
         this->file_size = this->mfile_memory.get_size();
         this->mmd_vector = this->mfile_memory.construct<MappedVector<T>>("MappedVector<T>")(mfile_memory.get_segment_manager());
         this->vector_handle = this->mfile_memory.get_handle_from_address(this->mmd_vector);
-        std::cout<<"bytes used: "<<this->mfile_memory.get_size()<<std::endl;
+        //std::cout<<"bytes used: "<<this->mfile_memory.get_size()<<std::endl;
+
+    }
+
+    template <typename T>
+    void MmdVector<T>::swap(MmdVector& other)
+    {
+        // Remove the original file that backed this vector
+        boost::interprocess::file_mapping::remove(this->file_path.c_str());
+
+        // Ensure all data is flushed from 'other'.
+        other.mfile_memory.flush();
+
+        // Swap ownership of file from 'other'.
+        this->mfile_memory.swap(other.mfile_memory);
+        this->file_path = other.file_path;
+        this->vector_handle = other.vector_handle;
+        this->mmd_vector = static_cast<MappedVector<T> *>(this->mfile_memory.get_address_from_handle(this->vector_handle));
+        this->file_size = this->mfile_memory.get_size();
+
+        // Reset 'other'
+        other.init(kDefaultSizeMb);
     }
 
     template <typename T>
     void MmdVector<T>::double_filesize()
     {
-        std::cout<<"Growing File!"<<std::endl;
+        //std::cout<<"Growing File!"<<std::endl;
         boost::interprocess::managed_mapped_file::grow(this->file_path.c_str(), this->file_size);
         this->mfile_memory = boost::interprocess::managed_mapped_file(boost::interprocess::open_only, this->file_path.c_str());
         this->mmd_vector = static_cast<MappedVector<T> *>(this->mfile_memory.get_address_from_handle(this->vector_handle));
@@ -112,6 +153,7 @@ namespace mmd
     template <typename T>
     MmdVector<T>::~MmdVector()
     {
+        std::cout<<"Lets remove..."<<std::endl;
         boost::interprocess::file_mapping::remove(this->file_path.c_str());
     }
 

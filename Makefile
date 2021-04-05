@@ -11,13 +11,4 @@ test:
 	bazel test :mmd-vector-test
 
 run-mmd:
-	./bazel-bin/mmd-vector m
-
-run-std:
-	./bazel-bin/mmd-vector s
-
-profile-mmd:
-	./scripts/profile-mapped.sh
-
-profile-std:
-	./scripts/profile-standard.sh
+	./bazel-bin/mmd-vector

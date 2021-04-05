@@ -27,16 +27,18 @@ namespace mmd
     public:
         MmdVector() : MmdVector(kDefaultSizeMb) {}  // ctor default
         MmdVector(const MmdVector& other);          // ctor copy
-        MmdVector(MmdVector&& other);               // ctor move
+        MmdVector(MmdVector&& other) noexcept;      // ctor move
         MmdVector(const std::size_t size);          // ctor custom size
         ~MmdVector();
-        void swap(MmdVector& other);
+        MmdVector<T>& operator=(const MmdVector& other);        // optor copy
+        MmdVector<T>& operator=(MmdVector&& other) noexcept;    // optor move
         const unsigned long get_file_size() const;
         const std::string get_file_path() const;
         const MappedVector<T> *get_mapped_vector() const;
         void push_back(const T &val);
 
     private:
+        void swap(MmdVector& other);
         void init(const std::size_t size);
         const std::size_t min_file_size = k1MB * 1;
         unsigned long file_size;
@@ -66,7 +68,7 @@ namespace mmd
     }
 
     template <typename T>
-    MmdVector<T>::MmdVector(MmdVector&& other)
+    MmdVector<T>::MmdVector(MmdVector&& other) noexcept
     {
         this->swap(other);
     }
@@ -82,7 +84,6 @@ namespace mmd
         this->file_size = this->mfile_memory.get_size();
         this->mmd_vector = this->mfile_memory.construct<MappedVector<T>>("MappedVector<T>")(mfile_memory.get_segment_manager());
         this->vector_handle = this->mfile_memory.get_handle_from_address(this->mmd_vector);
-
     }
 
     template <typename T>
@@ -105,6 +106,23 @@ namespace mmd
         other.init(kDefaultSizeMb);
     }
 
+    template <typename T>
+    MmdVector<T>& MmdVector<T>::operator=(const MmdVector& other)
+    {
+        for (int i=0; i < other.get_mapped_vector()->size(); i++)
+        {
+            this->mmd_vector->push_back(other.get_mapped_vector()->at(i));
+        }
+        return *this;
+    }
+
+    template <typename T>
+    MmdVector<T>& MmdVector<T>::operator=(MmdVector&& other) noexcept
+    {
+        this->swap(other);
+        return *this;
+    }
+    
     template <typename T>
     void MmdVector<T>::double_filesize()
     {

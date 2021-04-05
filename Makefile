@@ -9,6 +9,3 @@ build-c++17:
 
 test:
 	bazel test :mmd-vector-test
-
-run-mmd:
-	./bazel-bin/mmd-vector

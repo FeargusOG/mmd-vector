@@ -1,6 +1,7 @@
 
 #include "mmd-vector.h"
 #include <iostream>
+#include <vector>
 #include "gtest/gtest.h"
 
 namespace mmd
@@ -23,6 +24,29 @@ namespace mmd
             MmdVector<double> vector{10};
             EXPECT_EQ(vector.get_mapped_vector()->size(), 0);
             EXPECT_GT(vector.get_file_size(), 10 * sizeof(double));
+        }
+
+        TEST(MmdVector, ctor_vec)
+        {
+            // Create a vector
+            const double test_val = 2.0;
+            std::vector<double> orig_vector;
+            EXPECT_EQ(orig_vector.size(), 0);
+
+            // Push a value to it
+            orig_vector.push_back(test_val);
+            EXPECT_EQ(orig_vector.size(), 1);
+            EXPECT_DOUBLE_EQ(orig_vector.at(0), test_val);
+
+            // Copy it to a new vector
+            MmdVector<double> copy_vector{orig_vector};
+            EXPECT_EQ(copy_vector.get_mapped_vector()->size(), 1);
+            EXPECT_DOUBLE_EQ(copy_vector.get_mapped_vector()->at(0), test_val);
+
+            // Make sure that the original vector is left untouched
+            EXPECT_EQ(orig_vector.size(), 1);
+            EXPECT_DOUBLE_EQ(orig_vector.at(0), test_val);
+
         }
 
         TEST(MmdVector, ctor_copy)

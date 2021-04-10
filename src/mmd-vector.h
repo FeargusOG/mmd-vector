@@ -29,6 +29,7 @@ namespace mmd
         MmdVector(const MmdVector& other);          // ctor copy
         MmdVector(MmdVector&& other) noexcept;      // ctor move
         MmdVector(const std::size_t size);          // ctor custom size
+        MmdVector(const std::vector<T> vec);
         ~MmdVector();                               // dtor
         MmdVector<T>& operator=(const MmdVector& other);        // optor copy
         MmdVector<T>& operator=(MmdVector&& other) noexcept;    // optor move
@@ -71,6 +72,15 @@ namespace mmd
         for (int i=0; i < other.get_mapped_vector()->size(); i++)
         {
             this->mmd_vector->push_back(other.get_mapped_vector()->at(i));
+        }
+    }
+
+    template <typename T>
+    MmdVector<T>::MmdVector(const std::vector<T> vec) : MmdVector(vec.size())
+    {
+        for (int i=0; i < vec.size(); i++)
+        {
+            this->mmd_vector->push_back(vec.at(i));
         }
     }
 

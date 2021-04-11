@@ -100,6 +100,7 @@ namespace mmd
         this->mfile_memory = boost::interprocess::managed_mapped_file(boost::interprocess::create_only, this->file_path.c_str(), bytes_needed);
         this->file_size = this->mfile_memory.get_size();
         this->mmd_vector = this->mfile_memory.construct<MappedVector<T>>("MappedVector<T>")(mfile_memory.get_segment_manager());
+        this->mmd_vector->reserve(size);
         this->vector_handle = this->mfile_memory.get_handle_from_address(this->mmd_vector);
     }
 

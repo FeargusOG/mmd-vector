@@ -14,16 +14,22 @@ namespace mmd
 
         TEST(MmdVector, ctor_default)
         {
+            const double test_val = 2.0;
             MmdVector<double> vector;
             EXPECT_EQ(vector.get_mapped_vector()->size(), 0);
             EXPECT_GT(vector.get_file_size(),0);
+            vector.push_back(test_val);
+            EXPECT_EQ(vector.get_mapped_vector()->at(0), test_val);
         }
 
         TEST(MmdVector, ctor_size)
         {
+            const double test_val = 2.0;
             MmdVector<double> vector{10};
             EXPECT_EQ(vector.get_mapped_vector()->size(), 0);
             EXPECT_GT(vector.get_file_size(), 10 * sizeof(double));
+            vector.push_back(test_val);
+            EXPECT_EQ(vector.get_mapped_vector()->at(0), test_val);
         }
 
         TEST(MmdVector, ctor_vec)

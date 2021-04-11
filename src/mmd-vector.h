@@ -199,7 +199,7 @@ namespace mmd
     {
         boost::uuids::uuid uuid = boost::uuids::random_generator()();
         std::string path(boost::interprocess::ipcdetail::get_temporary_path());
-        path += "/";
+        path += "/mmd-vector-tmp-";
         path += boost::uuids::to_string(uuid);
         return path;
     }

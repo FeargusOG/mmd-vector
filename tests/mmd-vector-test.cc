@@ -175,6 +175,17 @@ namespace mmd
             EXPECT_GT(vector.get_file_size(),orig_size);
         }
 
+        TEST(MmdVector, operator_square_brackets)
+        {
+            const int init_val = 2;
+            const int new_val = 4;
+            MmdVector<int> vector{10};
+            vector.push_back(init_val);
+            EXPECT_EQ(vector[0], init_val);
+            vector[0] = new_val;
+            EXPECT_EQ(vector[0], new_val);
+        }
+
         
 
     } // namespace

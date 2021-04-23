@@ -39,6 +39,7 @@ namespace mmd
         void push_back(const T &val);
         T* get_memory();
         T& operator[](const int i);
+        size_t size() const;
 
     private:
         void swap(MmdVector& other);
@@ -53,6 +54,12 @@ namespace mmd
         std::string generate_filepath();
         void double_filesize();
     };
+
+    template<class T>
+    size_t MmdVector<T>::size() const
+    {
+        return this->mmd_vector->size();
+    }
 
     template<class T>
     T& MmdVector<T>::operator[](const int i)

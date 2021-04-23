@@ -186,6 +186,18 @@ namespace mmd
             EXPECT_EQ(vector[0], new_val);
         }
 
+        TEST(MmdVector, size)
+        {
+            const size_t expected = 3;
+            MmdVector<int> vector;
+            for (int i = 0; i < expected; i++)
+            {
+                vector.push_back(1);
+            }
+
+            EXPECT_EQ(vector.size(), expected);
+        }
+
         
 
     } // namespace
